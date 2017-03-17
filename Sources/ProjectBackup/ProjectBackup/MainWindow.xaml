@@ -1,0 +1,16 @@
+﻿<Window x:Class="ProjectBackup.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProjectBackup"
+        mc:Ignorable="d"
+        Title="ProjectBackup" Height="450" Width="700">
+    <Grid>
+        <ListBox Margin="30,134,30,28"/>
+        <Label Content="Liste des sauvegardes:" Margin="30,103,0,0" HorizontalAlignment="Left" Width="152" Height="26" VerticalAlignment="Top"/>
+        <Button Content="Ajouter" Margin="0,109,30,0" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75"/>
+        <Label Content="ProjectBackup" Margin="30,17,0,0" HorizontalAlignment="Left" Width="206" Height="26" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>
