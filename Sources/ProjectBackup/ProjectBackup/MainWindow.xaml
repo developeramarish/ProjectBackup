@@ -5,12 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProjectBackup"
         mc:Ignorable="d"
-        Title="ProjectBackup" Height="450" Width="700">
+        Title="ProjectBackup" Height="450" Width="700"
+        WindowStartupLocation="CenterScreen" Background="#FF66676C" Foreground="Black">
     <Grid>
-        <ListBox Margin="30,134,30,28"/>
-        <Label Content="Liste des sauvegardes:" Margin="30,103,0,0" HorizontalAlignment="Left" Width="152" Height="26" VerticalAlignment="Top"/>
-        <Button Content="Ajouter" Margin="0,109,30,0" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75"/>
-        <Label Content="ProjectBackup" Margin="30,17,0,0" HorizontalAlignment="Left" Width="206" Height="26" VerticalAlignment="Top"/>
+        <Label Content="Liste des sauvegardes:" Margin="10,53,0,0" HorizontalAlignment="Left" Width="172" Height="26" VerticalAlignment="Top" Foreground="White"/>
+        <Button x:Name="btnAddBackup" Content="Ajouter" Margin="0,59,10,0" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="95" Foreground="White" Background="#FFC3C3C3" Click="btnAddBackup_Click"/>
+        <Label Content="ProjectBackup" Margin="10,17,0,0" HorizontalAlignment="Left" Width="226" Height="26" VerticalAlignment="Top" Foreground="White"/>
+        <DataGrid Grid.Column="1" Grid.Row="3" Margin="10,84,10,10"
+                  ItemsSource="{Binding Backup, UpdateSourceTrigger=PropertyChanged}"
+                  CanUserDeleteRows="False"
+                  CanUserAddRows="False"
+                  AutoGenerateColumns="False"
+                  Name="dataGridBackupList"
+                  ToolTip="Liste des sauvegardes" Background="WhiteSmoke">
+            
+            <DataGrid.Columns>
+                <DataGridTemplateColumn IsReadOnly="True" Width="0.2*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button ToolTip="Supprimer cette sauvegarde" Content="X" Click="btnDeleteBackup_Click" CommandParameter="{Binding}" FontSize="16"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                
+            </DataGrid.Columns>
+
+        </DataGrid>
+
 
     </Grid>
 </Window>
