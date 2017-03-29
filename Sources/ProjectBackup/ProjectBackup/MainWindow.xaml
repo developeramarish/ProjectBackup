@@ -27,6 +27,9 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Nom" Binding="{Binding .Name, StringFormat='#,0.00', UpdateSourceTrigger=PropertyChanged}" Width="1*" IsReadOnly="True"></DataGridTextColumn>
+                <DataGridTextColumn Header="Source" Binding="{Binding .Source, StringFormat='#,0.00', UpdateSourceTrigger=PropertyChanged}" Width="1*" IsReadOnly="True"></DataGridTextColumn>
+                <DataGridTextColumn Header="Destination" Binding="{Binding .Destination, StringFormat='#,0.00', UpdateSourceTrigger=PropertyChanged}" Width="1*" IsReadOnly="True"></DataGridTextColumn>
                 
             </DataGrid.Columns>
 
