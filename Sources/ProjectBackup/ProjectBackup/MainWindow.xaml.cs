@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ProjectBackup.Backend_Sources.Classes;
+using ProjectBackup.Backend_Sources.Threads;
 
 namespace ProjectBackup
 {
@@ -37,10 +38,12 @@ namespace ProjectBackup
             _mainProcess.backupList = new List<Backup>();                   // Define a new backup list
 
 
-            Backup bTest = new Backup("Test",  "source", "destination");    
+            Backup bTest = new Backup("Test", "C:\\Users\\vinid223\\Desktop\\source\\", "C:\\Users\\vinid223\\Desktop\\destination\\");    
             _mainProcess.backupList.Add(bTest);
 
             dataGridBackupList.ItemsSource = _mainProcess.backupList;       // We load the backup list in the window item
+            FileWatcher f = new FileWatcher(bTest);
+            f.Run();
         }
 
         /// <summary>
