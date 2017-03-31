@@ -15,14 +15,24 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ProjectBackup.Backend_Sources.Classes;
 using ProjectBackup.Backend_Sources.Threads;
+using System.Runtime.InteropServices;
 
 namespace ProjectBackup
 {
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        [DllImport("Kernel32")]
+        public static extern void AllocConsole();
+
+        [DllImport("Kernel32")]
+        public static extern void FreeConsole();
+
+        private readonly log4net.ILog _logger = log4net.LogManager.GetLogger(typeof(MainWindow));
+
         // Define the mainProcess here to be able to access it
         private readonly MainProcess _mainProcess;
 
@@ -31,9 +41,12 @@ namespace ProjectBackup
         /// </summary>
         public MainWindow()
         {
-            InitializeComponent();
+            AllocConsole();                                                 // We open a console for logs
+            //log4net.Config.XmlConfigurator.Configure();                     // Configurate the logger
+            InitializeComponent();                                          // Initialize the components
 
-            
+            _logger.Info("Application is starting");
+
             _mainProcess = new MainProcess();                               // Define a new mainProcess
             _mainProcess.backupList = new List<Backup>();                   // Define a new backup list
 
