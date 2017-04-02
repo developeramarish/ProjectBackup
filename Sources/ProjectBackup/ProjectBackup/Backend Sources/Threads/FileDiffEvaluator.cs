@@ -23,62 +23,60 @@ namespace ProjectBackup.Backend_Sources.Threads
             int counter = 0;
             while (counter < 100)
             {
+                _logger.Info("File check : " + fileName);
                 try
                 {
-                    File.Copy(Path.Combine(b.Source, e.Name), Path.Combine(b.Destination, e.Name), true);
+                    using (Stream stream = System.IO.File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
+                    {
+                        if (stream != null)
+                        {
+                            _logger.Info(string.Format("Output file {0} ready.", fileName));
+                            break;
+                        }
+                    }
                 }
-                catch (Exception excep)
+                catch (FileNotFoundException ex)
                 {
-                    Console.WriteLine("Exception nouveau fichier : \n" + excep.ToString());
                     break;
                 }
-
+                catch (IOException ex)
+                {
+                    _logger.Info(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    _logger.Info(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
+                }
+                Thread.Sleep(100);
                 counter++;
-
-                if (counter == numberOfTry)
-                {
-                    break;
-                }
             }
         }
 
-        static public void deletedFile(FileSystemEventArgs e, Backup b)
+        static public void newOrChangedFile(FileSystemEventArgs e, Backup b)
         {
-            int counter = 0;
-            while (IsFileLocked(new FileInfo(Path.Combine(b.Destination, e.Name))))
+            _logger.Info("Nouveau/Edit fichier : " + e.Name);
+            WaitReady(Path.Combine(b.Source, e.Name));
+            try
             {
-                Console.WriteLine("Fichier supprime : " + e.Name);
-                try
-                {
-                    File.Delete(Path.Combine(b.Destination, e.Name));
-                }
-                catch (Exception excep)
-                {
-                    Console.WriteLine("Exception suppression fichier : \n" + excep.ToString());
-                }
-
-                counter++;
-
-                if (counter == numberOfTry)
-                {
-                    break;
-                }
                 File.Copy(Path.Combine(b.Source, e.Name), Path.Combine(b.Destination, e.Name), true);
             }
             catch (Exception excep)
             {
+                _logger.Info("Exception Nouveau/Edit fichier : " + excep.Message);
             }
         }
 
         static public void deletedFile(FileSystemEventArgs e, Backup b)
         {
             WaitReady(Path.Combine(b.Destination, e.Name));
+            _logger.Info("Fichier supprime : " + e.Name);
             try
             {
                 File.Delete(Path.Combine(b.Destination, e.Name));
             }
             catch (Exception excep)
             {
+                _logger.Info("Exception suppression fichier : " + excep.Message);
             }
         }
 
@@ -86,6 +84,7 @@ namespace ProjectBackup.Backend_Sources.Threads
         {
             WaitReady(Path.Combine(b.Source, e.Name));
             WaitReady(Path.Combine(b.Destination, e.OldName));
+            _logger.Info("Fichier renomme : " + e.Name);
             try
             {
                 File.Copy(Path.Combine(b.Source, e.Name), Path.Combine(b.Destination, e.Name), true);
@@ -93,6 +92,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             }
             catch (Exception excep)
             {
+                _logger.Info("Exception renommage du fichier : " + excep.Message);
             }            
         }
     }
