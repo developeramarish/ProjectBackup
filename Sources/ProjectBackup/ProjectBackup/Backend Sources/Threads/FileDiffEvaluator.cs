@@ -9,39 +9,20 @@ using System.Threading.Tasks;
 
 namespace ProjectBackup.Backend_Sources.Threads
 {
-    static class FileDiffEvaluator
+    public class FileDiffEvaluator
     {
-        private const int numberOfTry = 3;
-        private static bool IsFileLocked(FileInfo file)
-        {
-            FileStream stream = null;
+        private static readonly log4net.ILog _logger = log4net.LogManager.GetLogger(typeof(FileDiffEvaluator));
+        private const int numberOfTry = 10;
 
-            try
-            {
-                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
-            }
-            catch (IOException)
-            {
-                Thread.Sleep(500);
-                return true;
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    stream.Close();
-                }
-            }
-            
-            return false;
-        }
-
-        static public void newFile(FileSystemEventArgs e, Backup b)
+        /// <summary>
+        /// Waits until a file can be opened with write permission
+        /// http://stackoverflow.com/a/699587/3900435
+        /// </summary>
+        public static void WaitReady(string fileName)
         {
             int counter = 0;
-            while (IsFileLocked(new FileInfo(Path.Combine(b.Source, e.Name))))
+            while (counter < 100)
             {
-                Console.WriteLine("Nouveau fichier : " + e.Name);
                 try
                 {
                     File.Copy(Path.Combine(b.Source, e.Name), Path.Combine(b.Destination, e.Name), true);
@@ -82,57 +63,37 @@ namespace ProjectBackup.Backend_Sources.Threads
                 {
                     break;
                 }
+                File.Copy(Path.Combine(b.Source, e.Name), Path.Combine(b.Destination, e.Name), true);
+            }
+            catch (Exception excep)
+            {
             }
         }
 
-        static public void changedFile(FileSystemEventArgs e, Backup b)
+        static public void deletedFile(FileSystemEventArgs e, Backup b)
         {
-            int counter = 0;
-            while (IsFileLocked(new FileInfo(Path.Combine(b.Source, e.Name))))
+            WaitReady(Path.Combine(b.Destination, e.Name));
+            try
             {
-                Console.WriteLine("Fichier modifie : " + e.Name);
-                try
-                {
-                    File.Copy(Path.Combine(b.Source, e.Name), Path.Combine(b.Destination, e.Name), true);
-                }
-                catch (Exception excep)
-                {
-                    Console.WriteLine("Exception modification fichier : \n" + excep.ToString());
-                }
-
-                counter++;
-
-                if (counter == numberOfTry)
-                {
-                    break;
-                }
+                File.Delete(Path.Combine(b.Destination, e.Name));
+            }
+            catch (Exception excep)
+            {
             }
         }
 
         static public void renamedFile(RenamedEventArgs e, Backup b)
         {
-            int counter = 0;
-            while (IsFileLocked(new FileInfo(Path.Combine(b.Source, e.Name))))
+            WaitReady(Path.Combine(b.Source, e.Name));
+            WaitReady(Path.Combine(b.Destination, e.OldName));
+            try
             {
-                Console.WriteLine("Fichier renomme : " + e.Name);
-                try
-                {
-                    File.Copy(Path.Combine(b.Source, e.Name), Path.Combine(b.Destination, e.Name), true);
-                    File.Delete(Path.Combine(b.Destination, e.OldName));
-                }
-                catch (Exception excep)
-                {
-                    Console.WriteLine("Exception renommage du fichier : \n" + excep.ToString());
-                }
-
-                counter++;
-
-                if (counter == numberOfTry)
-                {
-                    break;
-                }
+                File.Copy(Path.Combine(b.Source, e.Name), Path.Combine(b.Destination, e.Name), true);
+                File.Delete(Path.Combine(b.Destination, e.OldName));
             }
-            
+            catch (Exception excep)
+            {
+            }            
         }
     }
 }

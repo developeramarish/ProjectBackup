@@ -29,13 +29,15 @@ namespace ProjectBackup.Backend_Sources.Threads
             {
                 watcher = new FileSystemWatcher();
                 watcher.Path = backup.Source;
-                watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+                watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastAccess;
                 watcher.Filter = "*.*";
-                watcher.Changed += new FileSystemEventHandler(changedFile);
-                watcher.Created += new FileSystemEventHandler(newFile);
+                watcher.Changed += new FileSystemEventHandler(newOrChangedFile);
+                watcher.Created += new FileSystemEventHandler(newOrChangedFile);
                 watcher.Deleted += new FileSystemEventHandler(deletedFile);
                 watcher.Renamed += new RenamedEventHandler(renamedFile);
                 watcher.EnableRaisingEvents = true;
+                watcher.IncludeSubdirectories = true;
+                watcher.InternalBufferSize = 24576;          
             }
             catch (Exception)
             {
@@ -46,22 +48,16 @@ namespace ProjectBackup.Backend_Sources.Threads
             _logger.Info("Initialisation of the watcher completed");
         }
 
-        private void newFile(object source, FileSystemEventArgs e)
+        private void newOrChangedFile(object source, FileSystemEventArgs e)
         {
             _logger.Info("New file");
-            FileDiffEvaluator.newFile(e, backup);
+            FileDiffEvaluator.newOrChangedFile(e, backup);
         }
 
         private void deletedFile(object source, FileSystemEventArgs e)
         {
             _logger.Info("Deleted file");
             FileDiffEvaluator.deletedFile(e, backup);
-        }
-
-        private void changedFile(object source, FileSystemEventArgs e)
-        {
-            _logger.Info("Changed file");
-            FileDiffEvaluator.changedFile(e, backup);
         }
 
         private void renamedFile(object source, RenamedEventArgs e)
