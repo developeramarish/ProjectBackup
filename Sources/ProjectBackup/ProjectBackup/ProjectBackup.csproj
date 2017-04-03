@@ -71,9 +71,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Backend Sources\Classes\Backup.cs" />
+    <Compile Include="Backend Sources\Classes\Backups.cs" />
     <Compile Include="Backend Sources\MainProcess.cs" />
-    <Compile Include="Backend Sources\Threads\FileDiffEvaluator.cs" />
-    <Compile Include="Backend Sources\Threads\FileWatcher.cs" />
+    <Compile Include="Backend Sources\Classes\FileDiffEvaluator.cs" />
+    <Compile Include="Backend Sources\Classes\FileWatcher.cs" />
     <Compile Include="BackupModal.xaml.cs">
       <DependentUpon>BackupModal.xaml</DependentUpon>
     </Compile>

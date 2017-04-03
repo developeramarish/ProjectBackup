@@ -17,6 +17,15 @@ namespace ProjectBackup.Backend_Sources.Classes
         public string Source { get; set; }
         public string Destination { get; set; }
 
+
+        /// <summary>
+        /// Constructor with no parameters
+        /// </summary>
+        public Backup()
+        {
+
+        }
+
         /// <summary>
         /// Constructor that assume that the data is valid 
         /// </summary>
