@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ProjectBackup.Backend_Sources.Threads;
 
 namespace ProjectBackup.Backend_Sources.Classes
 {
@@ -12,18 +13,20 @@ namespace ProjectBackup.Backend_Sources.Classes
     /// </summary>
     public class Backup
     {
-        public string Name { get; set; }
-        public DateTime CreationDate { get; set; }
-        public string Source { get; set; }
-        public string Destination { get; set; }
+        public string Name { get; set; }                    // Name of the backup
+        public DateTime CreationDate { get; set; }          // Creation date of the backup
+        public string Source { get; set; }                  // Source path of the backup
+        public string Destination { get; set; }             // Destination path of the backup
 
+        [System.Xml.Serialization.XmlIgnore]
+        public FileWatcher FileWatcher;                     // FileWatcher of the backup. Not saved in save file
 
         /// <summary>
         /// Constructor with no parameters
         /// </summary>
         public Backup()
         {
-
+            // Used only when retrieving backup config in the save file
         }
 
         /// <summary>
@@ -45,7 +48,7 @@ namespace ProjectBackup.Backend_Sources.Classes
         /// Method that validate all Backup parameters
         /// </summary>
         /// <returns>List of error messages</returns>
-        public List<string> validateParameters()
+        public List<string> ValidateParameters()
         {
             // List of all invalid characters
             char[] invalidChar = Path.GetInvalidPathChars();

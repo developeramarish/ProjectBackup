@@ -38,8 +38,6 @@ namespace ProjectBackup
         // Define the mainProcess here to be able to access it
         private readonly MainProcess _mainProcess;
 
-        private List<FileWatcher> _fileWatchers;
-
         private string BackupExportFile = "backups.xml";
 
         /// <summary>
@@ -54,15 +52,8 @@ namespace ProjectBackup
 
             _mainProcess = new MainProcess();                               // Define a new mainProcess
             _mainProcess.backupList = new List<Backup>();                   // Define a new backup list
-            _fileWatchers = new List<FileWatcher>();                        // Define a new FileWatcher list
             
             UnserializeCollection(BackupExportFile);                        // We load the backup configuration file
-
-            // We start all the watchers of all the backup
-            foreach (var backup in _mainProcess.backupList)
-            {
-                _fileWatchers.Add(new FileWatcher(backup));
-            }
 
             dataGridBackupList.ItemsSource = _mainProcess.backupList;       // We load the backup list in the window item
 
@@ -76,8 +67,11 @@ namespace ProjectBackup
         {
             // We extract the Backup element from the button
             var button = sender as Button;
+
+            // Check if the backup is not null
             if (button != null)
             {
+                // Cast the backup to be able to use it
                 Backup backup = (Backup) (button.CommandParameter);
 
                 // We show a confirmation box to delete or not the Backup
@@ -88,6 +82,9 @@ namespace ProjectBackup
                 if (result == MessageBoxResult.Yes)
                 {
                     _logger.Info("Backup delete trigger. Name : " + backup.Name);
+
+                    // We dispose the watcher before deleting the backup
+                    backup.FileWatcher.Watcher.Dispose();
 
                     // We remove the backup from the list
                     _mainProcess.backupList.Remove(backup);
@@ -115,6 +112,12 @@ namespace ProjectBackup
             if (view.backup != null)
             {
                 _logger.Info("New backup trigger. Name : " + view.backup.Name);
+
+                // Create a new filewatcher
+                view.backup.FileWatcher = new FileWatcher(view.backup.Source, view.backup.Destination);
+
+                // We execute the watcher of the new backup
+                view.backup.FileWatcher.Run();
 
                 // We add the backup in the backup list
                 _mainProcess.backupList.Add(view.backup);
@@ -173,8 +176,24 @@ namespace ProjectBackup
             // Add the backup to the working backup list
             foreach (var backup in backups)
             {
-                _mainProcess.backupList.Add((Backup) backup);
+                // We cast the object as a backup
+                Backup b = (Backup)backup;
+                
+                // Initiate a new FileWatcher with the source path and destination path
+                b.FileWatcher = new FileWatcher(b.Source, b.Destination);
+
+                // Launch the run function to initiaize the watcher
+                b.FileWatcher.Run();
+
+                // Add the backup in the backup list of the window app
+                _mainProcess.backupList.Add(b);
             }
+        }
+
+
+        private void btnTooglePlayPause_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO
         }
     }
 }

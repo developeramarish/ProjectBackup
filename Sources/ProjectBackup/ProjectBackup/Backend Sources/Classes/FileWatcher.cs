@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading;
@@ -11,20 +12,31 @@ using System.Threading.Tasks;
 
 namespace ProjectBackup.Backend_Sources.Threads
 {
+    /// <summary>
+    /// Class that watch a folder and trigger methods on certains elements
+    /// </summary>
     public class FileWatcher
     {
-        public FileSystemWatcher Watcher;
-        public Backup backup;
+        public FileSystemWatcher Watcher;           // Watcher that will trigger the changes
+        public string source;                       // Source folder to watch
+        public string destination;                  // Destination folder
 
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(FileWatcher));
 
-        public FileWatcher(Backup b)
+        /// <summary>
+        /// Constructor with parameters
+        /// </summary>
+        /// <param name="source">Source folder of the watch</param>
+        /// <param name="destination">Destination folder</param>
+        public FileWatcher(string source, string destination)
         {
-            backup = b;
-
-            Run();
+            this.source = source;
+            this.destination = destination;
         }
 
+        /// <summary>
+        /// Method that will initiate the watcher 
+        /// </summary>
         public void Run()
         {
             Logger.Info("Initialisation of the file watcher");
@@ -32,7 +44,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             try
             {
                 Watcher = new FileSystemWatcher();
-                Watcher.Path = backup.Source;
+                Watcher.Path = source;
                 Watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastAccess;
                 Watcher.Filter = "*.*";
                 Watcher.Changed += new FileSystemEventHandler(NewOrChangedFile);
@@ -52,27 +64,45 @@ namespace ProjectBackup.Backend_Sources.Threads
             Logger.Info("Initialisation of the watcher completed");
         }
 
-        private void NewOrChangedFile(object source, FileSystemEventArgs e)
+        /// <summary>
+        /// Method that will trigger on new or changed file
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="e"></param>
+        private void NewOrChangedFile(object obj, FileSystemEventArgs e)
         {
             Logger.Info("New file");
-            //FileDiffEvaluator.NewOrChangedFile(e, backup);
-            Thread t = new Thread(() => FileDiffEvaluator.NewOrChangedFile(e, backup));
+            
+            // Start a new thread of the file to lower the wait time of the watcher
+            Thread t = new Thread(() => FileDiffEvaluator.NewOrChangedFile(e, source, destination));
             t.Start();
         }
 
-        private void DeletedFile(object source, FileSystemEventArgs e)
+        /// <summary>
+        /// Method that will trigger on a deleted file
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="e"></param>
+        private void DeletedFile(object obj, FileSystemEventArgs e)
         {
             Logger.Info("Deleted file");
-            //FileDiffEvaluator.DeletedFile(e, backup);
-            Thread t = new Thread(() => FileDiffEvaluator.DeletedFile(e, backup));
+
+            // Start a new thread of the file to lower the wait time of the watcher
+            Thread t = new Thread(() => FileDiffEvaluator.DeletedFile(e, source, destination));
             t.Start();
         }
 
-        private void RenamedFile(object source, RenamedEventArgs e)
+        /// <summary>
+        /// Method that will trigger when a file is renamed
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="e"></param>
+        private void RenamedFile(object obj, RenamedEventArgs e)
         {
             Logger.Info("renamed file");
-            //FileDiffEvaluator.RenamedFile(e, backup);
-            Thread t = new Thread(() => FileDiffEvaluator.RenamedFile(e, backup));
+
+            // Start a new thread of the file to lower the wait time of the watcher
+            Thread t = new Thread(() => FileDiffEvaluator.RenamedFile(e, source, destination));
             t.Start();
         }
     }

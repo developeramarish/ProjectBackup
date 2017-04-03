@@ -18,7 +18,7 @@
                   AutoGenerateColumns="False"
                   Name="dataGridBackupList"
                   ToolTip="Liste des sauvegardes" Background="WhiteSmoke">
-            
+
             <DataGrid.Columns>
                 <DataGridTemplateColumn IsReadOnly="True" Width="0.2*">
                     <DataGridTemplateColumn.CellTemplate>

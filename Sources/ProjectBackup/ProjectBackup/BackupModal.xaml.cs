@@ -30,11 +30,21 @@ namespace ProjectBackup
             
         }
 
+        /// <summary>
+        /// When the user click on cancel
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
+        /// <summary>
+        /// This method is trigger when a user click on the select source folder button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnGetDirectoryModalSource_Click(object sender, RoutedEventArgs e)
         {
             using (var dialog = new FolderBrowserDialog())
@@ -48,6 +58,11 @@ namespace ProjectBackup
             }
         }
 
+        /// <summary>
+        /// This method is triggered when a user click on the select destination folder button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnGetDirectoryModalDestination_Click(object sender, RoutedEventArgs e)
         {
             using (var dialog = new FolderBrowserDialog())
@@ -61,13 +76,23 @@ namespace ProjectBackup
             }
         }
 
+        /// <summary>
+        /// This method is triggered when a user click on the add button 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnAjouter_Click(object sender, RoutedEventArgs e)
         {
+            // Export the data into a backup object
             backup = new Backup(txtBoxName.Text, txtBoxSource.Text, txtBoxDestination.Text);
-            List<string> listErrors = backup.validateParameters();
 
+            // Validate the information in defined in the backup
+            List<string> listErrors = backup.ValidateParameters();
+
+            // If there is some errors in the data given
             if (listErrors.Count > 0)
             {
+                // Show the errors on the screen
                 string show = "Il y a des erreurs dans les informations suivantes : \n";
 
                 foreach (var str in listErrors)
@@ -80,6 +105,7 @@ namespace ProjectBackup
             }
             else
             {
+                // Otherwise close the modal
                 Close();
             }
         }
