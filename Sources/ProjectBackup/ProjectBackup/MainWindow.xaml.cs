@@ -36,6 +36,8 @@ namespace ProjectBackup
         // Define the mainProcess here to be able to access it
         private readonly MainProcess _mainProcess;
 
+        private List<FileWatcher> _fileWatchers;
+
         /// <summary>
         /// Default method that will manage everything that happen in the program
         /// </summary>
@@ -49,14 +51,18 @@ namespace ProjectBackup
 
             _mainProcess = new MainProcess();                               // Define a new mainProcess
             _mainProcess.backupList = new List<Backup>();                   // Define a new backup list
+            _fileWatchers = new List<FileWatcher>();                        // Define a new FileWatcher list
 
-
+            // WE LOAD ALL BACKUP FROM CONFIG FILE
             Backup bTest = new Backup("Test", "C:\\Users\\vinid223\\Desktop\\source\\", "C:\\Users\\vinid223\\Desktop\\destination\\");    
             _mainProcess.backupList.Add(bTest);
 
+            foreach (var backup in _mainProcess.backupList)
+            {
+                _fileWatchers.Add(new FileWatcher(backup));
+            }
+
             dataGridBackupList.ItemsSource = _mainProcess.backupList;       // We load the backup list in the window item
-            FileWatcher f = new FileWatcher(bTest);
-            f.Run();
         }
 
         /// <summary>
@@ -64,24 +70,25 @@ namespace ProjectBackup
         /// </summary>
         private void btnDeleteBackup_Click(object sender, RoutedEventArgs e)
         {
-            // Initialise the result value of the confirmation box
-            MessageBoxResult result = MessageBoxResult.None;
-
             // We extract the Backup element from the button
-            Backup backup = (Backup) ((sender as Button).CommandParameter);
-
-            // We show a confirmation box to delete or not the Backup
-            result = MessageBox.Show("Voulez-vous supprimer cette sauvegarde : " + backup.Name, "Avertissement",
-                MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.No);
-
-            // If the answer is yes
-            if (result == MessageBoxResult.Yes)
+            var button = sender as Button;
+            if (button != null)
             {
-                // We remove the backup from the list
-                _mainProcess.backupList.Remove(backup);
+                Backup backup = (Backup) (button.CommandParameter);
 
-                // We update the content in the window
-                dataGridBackupList.Items.Refresh();
+                // We show a confirmation box to delete or not the Backup
+                var result = MessageBox.Show("Voulez-vous supprimer cette sauvegarde : " + backup.Name, "Avertissement",
+                    MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.No);
+
+                // If the answer is yes
+                if (result == MessageBoxResult.Yes)
+                {
+                    // We remove the backup from the list
+                    _mainProcess.backupList.Remove(backup);
+
+                    // We update the content in the window
+                    dataGridBackupList.Items.Refresh();
+                }
             }
         }
 

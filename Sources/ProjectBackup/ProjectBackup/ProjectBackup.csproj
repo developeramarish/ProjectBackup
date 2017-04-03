@@ -72,7 +72,6 @@
     </Compile>
     <Compile Include="Backend Sources\Classes\Backup.cs" />
     <Compile Include="Backend Sources\MainProcess.cs" />
-    <Compile Include="Backend Sources\Threads\FileCopy.cs" />
     <Compile Include="Backend Sources\Threads\FileDiffEvaluator.cs" />
     <Compile Include="Backend Sources\Threads\FileWatcher.cs" />
     <Compile Include="BackupModal.xaml.cs">

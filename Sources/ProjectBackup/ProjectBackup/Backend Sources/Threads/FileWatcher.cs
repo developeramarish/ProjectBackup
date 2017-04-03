@@ -4,66 +4,75 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ProjectBackup.Backend_Sources.Threads
 {
-    class FileWatcher
     {
-        public FileSystemWatcher watcher;
-        private Backup backup;
+        public FileSystemWatcher Watcher;
+        public Backup backup;
 
-        private readonly log4net.ILog _logger = log4net.LogManager.GetLogger(typeof(FileWatcher));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(FileWatcher));
 
         public FileWatcher(Backup b)
         {
             backup = b;
+
+            Run();
         }
 
         public void Run()
         {
-            _logger.Info("Initialisation of the file watcher");
+            Logger.Info("Initialisation of the file watcher");
 
             try
             {
-                watcher = new FileSystemWatcher();
-                watcher.Path = backup.Source;
-                watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastAccess;
-                watcher.Filter = "*.*";
-                watcher.Changed += new FileSystemEventHandler(newOrChangedFile);
-                watcher.Created += new FileSystemEventHandler(newOrChangedFile);
-                watcher.Deleted += new FileSystemEventHandler(deletedFile);
-                watcher.Renamed += new RenamedEventHandler(renamedFile);
-                watcher.EnableRaisingEvents = true;
-                watcher.IncludeSubdirectories = true;
-                watcher.InternalBufferSize = 24576;          
+                Watcher = new FileSystemWatcher();
+                Watcher.Path = backup.Source;
+                Watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastAccess;
+                Watcher.Filter = "*.*";
+                Watcher.Changed += new FileSystemEventHandler(NewOrChangedFile);
+                Watcher.Created += new FileSystemEventHandler(NewOrChangedFile);
+                Watcher.Deleted += new FileSystemEventHandler(DeletedFile);
+                Watcher.Renamed += new RenamedEventHandler(RenamedFile);
+                Watcher.EnableRaisingEvents = true;
+                Watcher.IncludeSubdirectories = true;
+                Watcher.InternalBufferSize = 32768;          
             }
             catch (Exception)
             {
 
-                _logger.Error("Initialisation of the watcher did not work");
+                Logger.Error("Initialisation of the watcher did not work");
                 throw;
             }
-            _logger.Info("Initialisation of the watcher completed");
+            Logger.Info("Initialisation of the watcher completed");
         }
 
-        private void newOrChangedFile(object source, FileSystemEventArgs e)
+        private void NewOrChangedFile(object source, FileSystemEventArgs e)
         {
-            _logger.Info("New file");
-            FileDiffEvaluator.newOrChangedFile(e, backup);
+            Logger.Info("New file");
+            //FileDiffEvaluator.NewOrChangedFile(e, backup);
+            Thread t = new Thread(() => FileDiffEvaluator.NewOrChangedFile(e, backup));
+            t.Start();
         }
 
-        private void deletedFile(object source, FileSystemEventArgs e)
+        private void DeletedFile(object source, FileSystemEventArgs e)
         {
-            _logger.Info("Deleted file");
-            FileDiffEvaluator.deletedFile(e, backup);
+            Logger.Info("Deleted file");
+            //FileDiffEvaluator.DeletedFile(e, backup);
+            Thread t = new Thread(() => FileDiffEvaluator.DeletedFile(e, backup));
+            t.Start();
         }
 
-        private void renamedFile(object source, RenamedEventArgs e)
+        private void RenamedFile(object source, RenamedEventArgs e)
         {
-            _logger.Info("renamed file");
-            FileDiffEvaluator.renamedFile(e, backup);
+            Logger.Info("renamed file");
+            //FileDiffEvaluator.RenamedFile(e, backup);
+            Thread t = new Thread(() => FileDiffEvaluator.RenamedFile(e, backup));
+            t.Start();
         }
     }
 }

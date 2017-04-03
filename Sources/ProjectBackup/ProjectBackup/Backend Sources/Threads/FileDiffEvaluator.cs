@@ -11,8 +11,8 @@ namespace ProjectBackup.Backend_Sources.Threads
 {
     public class FileDiffEvaluator
     {
-        private static readonly log4net.ILog _logger = log4net.LogManager.GetLogger(typeof(FileDiffEvaluator));
-        private const int numberOfTry = 10;
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(FileDiffEvaluator));
+        private const int NumberOfTry = 10;
 
         /// <summary>
         /// Waits until a file can be opened with write permission
@@ -23,38 +23,35 @@ namespace ProjectBackup.Backend_Sources.Threads
             int counter = 0;
             while (counter < 100)
             {
-                _logger.Info("File check : " + fileName);
+                Logger.Info("File check : " + fileName);
                 try
                 {
                     using (Stream stream = System.IO.File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
                     {
-                        if (stream != null)
-                        {
-                            _logger.Info(string.Format("Output file {0} ready.", fileName));
-                            break;
-                        }
+                        Logger.Info(string.Format("Output file {0} ready.", fileName));
+                        break;
                     }
                 }
-                catch (FileNotFoundException ex)
+                catch (FileNotFoundException)
                 {
                     break;
                 }
                 catch (IOException ex)
                 {
-                    _logger.Info(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
+                    Logger.Info(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
                 }
                 catch (UnauthorizedAccessException ex)
                 {
-                    _logger.Info(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
+                    Logger.Info(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
                 }
                 Thread.Sleep(100);
                 counter++;
             }
         }
 
-        static public void newOrChangedFile(FileSystemEventArgs e, Backup b)
+        public static void NewOrChangedFile(FileSystemEventArgs e, Backup b)
         {
-            _logger.Info("Nouveau/Edit fichier : " + e.Name);
+            Logger.Info("Nouveau/Edit fichier : " + e.Name);
             WaitReady(Path.Combine(b.Source, e.Name));
             try
             {
@@ -62,29 +59,29 @@ namespace ProjectBackup.Backend_Sources.Threads
             }
             catch (Exception excep)
             {
-                _logger.Info("Exception Nouveau/Edit fichier : " + excep.Message);
+                Logger.Info("Exception Nouveau/Edit fichier : " + excep.Message);
             }
         }
 
-        static public void deletedFile(FileSystemEventArgs e, Backup b)
+        public static void DeletedFile(FileSystemEventArgs e, Backup b)
         {
             WaitReady(Path.Combine(b.Destination, e.Name));
-            _logger.Info("Fichier supprime : " + e.Name);
+            Logger.Info("Fichier supprime : " + e.Name);
             try
             {
                 File.Delete(Path.Combine(b.Destination, e.Name));
             }
             catch (Exception excep)
             {
-                _logger.Info("Exception suppression fichier : " + excep.Message);
+                Logger.Info("Exception suppression fichier : " + excep.Message);
             }
         }
 
-        static public void renamedFile(RenamedEventArgs e, Backup b)
+        public static void RenamedFile(RenamedEventArgs e, Backup b)
         {
             WaitReady(Path.Combine(b.Source, e.Name));
             WaitReady(Path.Combine(b.Destination, e.OldName));
-            _logger.Info("Fichier renomme : " + e.Name);
+            Logger.Info("Fichier renomme : " + e.Name);
             try
             {
                 File.Copy(Path.Combine(b.Source, e.Name), Path.Combine(b.Destination, e.Name), true);
@@ -92,7 +89,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             }
             catch (Exception excep)
             {
-                _logger.Info("Exception renommage du fichier : " + excep.Message);
+                Logger.Info("Exception renommage du fichier : " + excep.Message);
             }            
         }
     }
