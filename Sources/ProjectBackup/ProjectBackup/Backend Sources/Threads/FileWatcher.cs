@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace ProjectBackup.Backend_Sources.Threads
 {
+    public class FileWatcher
     {
         public FileSystemWatcher Watcher;
         public Backup backup;
