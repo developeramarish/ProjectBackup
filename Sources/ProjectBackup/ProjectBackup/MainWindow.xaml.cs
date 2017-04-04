@@ -2,18 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using ProjectBackup.Backend_Sources.Classes;
 using ProjectBackup.Backend_Sources.Threads;
 using System.Runtime.InteropServices;
@@ -21,7 +11,6 @@ using System.Xml.Serialization;
 
 namespace ProjectBackup
 {
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -38,7 +27,15 @@ namespace ProjectBackup
         // Define the mainProcess here to be able to access it
         private readonly MainProcess _mainProcess;
 
+        // Name of the configuration folder
         private string BackupExportFile = "backups.xml";
+
+        private Backup _selectedBackup;
+        public Backup SelectedBackup
+        {
+            get { return _selectedBackup; }
+            set { _selectedBackup = value; triggerSelectedBackup(); }
+        }
 
         /// <summary>
         /// Default method that will manage everything that happen in the program
@@ -86,6 +83,9 @@ namespace ProjectBackup
                     // We dispose the watcher before deleting the backup
                     backup.FileWatcher.Watcher.Dispose();
 
+                    // Set the watcher running to false
+                    backup.FileWatcher.watcherRunning = false;
+
                     // We remove the backup from the list
                     _mainProcess.backupList.Remove(backup);
 
@@ -115,6 +115,9 @@ namespace ProjectBackup
 
                 // Create a new filewatcher
                 view.backup.FileWatcher = new FileWatcher(view.backup.Source, view.backup.Destination);
+
+                // Init the backup to make a first copy of a folder
+                view.backup.FileWatcher.InitNew();
 
                 // We execute the watcher of the new backup
                 view.backup.FileWatcher.Run();
@@ -156,6 +159,9 @@ namespace ProjectBackup
 
             // Serialise the collection and print it into the file
             x.Serialize(writer, backups);
+
+            // Close the file
+            writer.Close();
         }
 
         /// <summary>
@@ -164,36 +170,107 @@ namespace ProjectBackup
         /// <param name="filename">File name of the configuration</param>
         private void UnserializeCollection(string filename)
         {
-            // Initiate a serializer
-            XmlSerializer serializer = new XmlSerializer(typeof(Backups));
-
-            // Initiate a filestream
-            FileStream fs = new FileStream(filename, FileMode.Open);
-
-            // Deserialize the file into the backup collection
-            Backups backups = (Backups) serializer.Deserialize(fs);
-
-            // Add the backup to the working backup list
-            foreach (var backup in backups)
+            try
             {
-                // We cast the object as a backup
-                Backup b = (Backup)backup;
-                
-                // Initiate a new FileWatcher with the source path and destination path
-                b.FileWatcher = new FileWatcher(b.Source, b.Destination);
+                // Initiate a serializer
+                XmlSerializer serializer = new XmlSerializer(typeof(Backups));
 
-                // Launch the run function to initiaize the watcher
-                b.FileWatcher.Run();
+                // Initiate a filestream
+                FileStream fs = new FileStream(filename, FileMode.Open);
 
-                // Add the backup in the backup list of the window app
-                _mainProcess.backupList.Add(b);
+                // Deserialize the file into the backup collection
+                Backups backups = (Backups)serializer.Deserialize(fs);
+
+                // Add the backup to the working backup list
+                foreach (var backup in backups)
+                {
+                    // We cast the object as a backup
+                    Backup b = (Backup)backup;
+
+                    // Initiate a new FileWatcher with the source path and destination path
+                    b.FileWatcher = new FileWatcher(b.Source, b.Destination);
+
+                    // Init start to update the backup before the watcher start
+                    b.FileWatcher.InitStart();
+
+                    // Launch the run function to initiaize the watcher
+                    b.FileWatcher.Run();
+
+                    // Add the backup in the backup list of the window app
+                    _mainProcess.backupList.Add(b);
+                }
+
+                // Close the open file
+                fs.Close();
+            }
+            catch (Exception)
+            {
+                _logger.Warn("The configuration file could not be loaded. Might be missing or invalid");
             }
         }
 
-
-        private void btnTooglePlayPause_Click(object sender, RoutedEventArgs e)
+        private void triggerSelectedBackup()
         {
-            // TODO
+            Console.WriteLine(_selectedBackup.Name);
+        }
+
+        /// <summary>
+        /// This method is triggered when a row in the backup list is selected
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dataGridBackupList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Get the button value 
+            var dataGrid = sender as DataGrid;
+
+            // Check if the backup is not null
+            if (dataGrid != null)
+            {
+                // Cast the backup to be able to use it
+                Backup backup = (Backup)(dataGrid.SelectedItem);
+
+                // In case the backup selected is not deleted
+                if (backup != null)
+                {
+                    // Set the enabled value of the buttons
+                    btnPauseBackup.IsEnabled = backup.FileWatcher.watcherRunning;
+                    btnPlayBackup.IsEnabled = !backup.FileWatcher.watcherRunning;
+                }
+                else
+                {
+                    // If it's deleted just disable the buttons
+                    btnPauseBackup.IsEnabled = false;
+                    btnPlayBackup.IsEnabled = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnPlayBackup_Click(object sender, RoutedEventArgs e)
+        {
+            if (!SelectedBackup.FileWatcher.watcherRunning)
+            {
+                SelectedBackup.FileWatcher.Run();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnPauseBackup_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedBackup.FileWatcher.watcherRunning)
+            {
+                SelectedBackup.FileWatcher.watcherRunning = false;
+                SelectedBackup.FileWatcher.Watcher.Dispose();
+            }
         }
     }
 }

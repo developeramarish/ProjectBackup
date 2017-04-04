@@ -20,6 +20,7 @@ namespace ProjectBackup.Backend_Sources.Threads
         public FileSystemWatcher Watcher;           // Watcher that will trigger the changes
         public string source;                       // Source folder to watch
         public string destination;                  // Destination folder
+        public bool watcherRunning;                 // Define if the watcher is running
 
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(FileWatcher));
 
@@ -32,6 +33,48 @@ namespace ProjectBackup.Backend_Sources.Threads
         {
             this.source = source;
             this.destination = destination;
+        }
+
+        /// <summary>
+        /// Method that make a first copy of the source folder
+        /// </summary>
+        public void InitNew()
+        {
+            string[] files = Directory.GetFiles(source);
+
+            foreach (var item in files)
+            {
+                FileSystemEventArgs e = new FileSystemEventArgs(WatcherChangeTypes.All, source, Path.GetFileName(item));
+                Thread t = new Thread(() => FileDiffEvaluator.NewOrChangedFile(e, source, destination));
+                t.Start();
+            }
+        }
+
+        /// <summary>
+        /// Method that will make a copy of the file that changed when the watcher is offline
+        /// </summary>
+        public void InitStart()
+        {
+            // If the time file exist
+            if (File.Exists(Path.Combine(source, ".backup")))
+            {
+                // Get the time of the modification of the file
+                DateTime modification = File.GetLastWriteTime(Path.Combine(source, ".backup"));
+
+                // Get the file list of the directory
+                string[] files = Directory.GetFiles(source);
+
+                // For each of the file
+                foreach (var item in files)
+                {
+                    // Start a new thread that will update all the file of a backup folder
+                    Thread t = new Thread(() => FileDiffEvaluator.UpdateFileByDate(modification, item, source, destination));
+                    t.Start();
+                }
+
+            }
+
+            // Otherwise just do nothing
         }
 
         /// <summary>
@@ -53,7 +96,9 @@ namespace ProjectBackup.Backend_Sources.Threads
                 Watcher.Renamed += new RenamedEventHandler(RenamedFile);
                 Watcher.EnableRaisingEvents = true;
                 Watcher.IncludeSubdirectories = true;
-                Watcher.InternalBufferSize = 32768;          
+                Watcher.InternalBufferSize = 32768;
+
+                watcherRunning = true;
             }
             catch (Exception)
             {

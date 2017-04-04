@@ -13,6 +13,7 @@ namespace ProjectBackup.Backend_Sources.Threads
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(FileDiffEvaluator));
         private const int NumberOfTry = 10;
+        private static bool copyRun = false;
 
         /// <summary>
         /// Waits until a file can be opened with read permission to be able to backup
@@ -21,6 +22,8 @@ namespace ProjectBackup.Backend_Sources.Threads
         /// 
         /// Origin of the code:
         /// http://stackoverflow.com/a/699587/3900435
+        /// 
+        /// It was modified to limit the number of try
         /// </summary>
         public static void WaitReady(string fileName)
         {
@@ -69,6 +72,9 @@ namespace ProjectBackup.Backend_Sources.Threads
             {
                 // Copy the file at the destination
                 File.Copy(Path.Combine(source, e.Name), Path.Combine(destination, e.Name), true);
+
+                // Indicate that there is a update done
+                copyRun = true;
             }
             catch (Exception excep)
             {
@@ -91,6 +97,9 @@ namespace ProjectBackup.Backend_Sources.Threads
             {
                 // We delete the file at the destination
                 File.Delete(Path.Combine(destination, e.Name));
+
+                // Indicate that there is a update done
+                copyRun = true;
             }
             catch (Exception excep)
             {
@@ -115,11 +124,37 @@ namespace ProjectBackup.Backend_Sources.Threads
             {
                 File.Copy(Path.Combine(source, e.Name), Path.Combine(destination, e.Name), true);
                 File.Delete(Path.Combine(destination, e.OldName));
+
+                // Indicate that there is a update done
+                copyRun = true;
             }
             catch (Exception excep)
             {
                 Logger.Info("Exception renommage du fichier : " + excep.Message);
             }            
+        }
+        
+        /// <summary>
+        /// This method is called for each files to validate the modification date since the last modification
+        /// </summary>
+        /// <param name="modification">Last date of run of a backup</param>
+        /// <param name="file">Complete file path to test</param>
+        /// <param name="source">Source folder</param>
+        /// <param name="destination">Destination folder</param>
+        public static void UpdateFileByDate(DateTime modification, string file, string source, string destination)
+        {
+            // Get the last time modification of the file
+            DateTime currentTime = File.GetLastWriteTime(file);
+
+            // If the time of modification is more recent than the backup last run
+            if (currentTime > modification)
+            {
+                // Create the object of arguments that will pass to the static methods
+                FileSystemEventArgs e = new FileSystemEventArgs(WatcherChangeTypes.All, source, Path.GetFileName(file));
+
+                // Start the copy of the file
+                NewOrChangedFile(e, source, destination);
+            }
         }
     }
 }

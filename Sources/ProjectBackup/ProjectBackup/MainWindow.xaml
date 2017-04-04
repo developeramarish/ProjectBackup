@@ -5,19 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProjectBackup"
         mc:Ignorable="d"
-        Title="ProjectBackup" Height="450" Width="700"
+        Title="ProjectBackup" Height="612" Width="952"
         WindowStartupLocation="CenterScreen" Background="#FF66676C" Foreground="Black">
     <Grid>
         <Label Content="Liste des sauvegardes:" Margin="10,53,0,0" HorizontalAlignment="Left" Width="172" Height="26" VerticalAlignment="Top" Foreground="White"/>
-        <Button x:Name="btnAddBackup" Content="Ajouter" Margin="0,59,10,0" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="95" Foreground="White" Background="#FFC3C3C3" Click="btnAddBackup_Click"/>
+        <Button x:Name="btnAddBackup" Content="Ajouter" Margin="0,59,10,0" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="95" Foreground="Black" Background="#FFC3C3C3" Click="btnAddBackup_Click"/>
         <Label Content="ProjectBackup" Margin="10,17,0,0" HorizontalAlignment="Left" Width="226" Height="26" VerticalAlignment="Top" Foreground="White"/>
         <DataGrid Grid.Column="1" Grid.Row="3" Margin="10,84,10,10"
                   ItemsSource="{Binding Backup, UpdateSourceTrigger=PropertyChanged}"
+                  SelectedItem="{Binding SelectedBackup}"
                   CanUserDeleteRows="False"
                   CanUserAddRows="False"
                   AutoGenerateColumns="False"
                   Name="dataGridBackupList"
-                  ToolTip="Liste des sauvegardes" Background="WhiteSmoke">
+                  ToolTip="Liste des sauvegardes" Background="WhiteSmoke" SelectionChanged="dataGridBackupList_SelectionChanged">
 
             <DataGrid.Columns>
                 <DataGridTemplateColumn IsReadOnly="True" Width="0.2*">
@@ -27,13 +28,23 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Nom" Binding="{Binding .Name, StringFormat='#,0.00', UpdateSourceTrigger=PropertyChanged}" Width="1*" IsReadOnly="True"></DataGridTextColumn>
-                <DataGridTextColumn Header="Source" Binding="{Binding .Source, StringFormat='#,0.00', UpdateSourceTrigger=PropertyChanged}" Width="1*" IsReadOnly="True"></DataGridTextColumn>
-                <DataGridTextColumn Header="Destination" Binding="{Binding .Destination, StringFormat='#,0.00', UpdateSourceTrigger=PropertyChanged}" Width="1*" IsReadOnly="True"></DataGridTextColumn>
-                
+                <DataGridTextColumn Header="Nom" Binding="{Binding .Name, StringFormat='#,0.00', UpdateSourceTrigger=PropertyChanged}" Width="1*" IsReadOnly="True" CanUserSort="False"></DataGridTextColumn>
+                <DataGridTextColumn Header="Source" Binding="{Binding .Source, StringFormat='#,0.00', UpdateSourceTrigger=PropertyChanged}" Width="1*" IsReadOnly="True" CanUserSort="False"></DataGridTextColumn>
+                <DataGridTextColumn Header="Destination" Binding="{Binding .Destination, StringFormat='#,0.00', UpdateSourceTrigger=PropertyChanged}" Width="1*" IsReadOnly="True" CanUserSort="False"></DataGridTextColumn>
+
             </DataGrid.Columns>
 
         </DataGrid>
+        <Button x:Name="btnPlayBackup" HorizontalAlignment="Left" Margin="171,59,0,0" VerticalAlignment="Top" Width="25" Height="20" IsEnabled="False" Click="btnPlayBackup_Click">
+            <StackPanel >
+                <Image Source="img/play.png" Height="16" Width="20" />
+            </StackPanel>
+        </Button>
+        <Button x:Name="btnPauseBackup" HorizontalAlignment="Left" Margin="201,59,0,0" VerticalAlignment="Top" Width="25" Height="20" IsEnabled="False" Click="btnPauseBackup_Click">
+            <StackPanel>
+                <Image Source="img/pause.png" Height="16" Width="20" />
+            </StackPanel>
+        </Button>
 
 
     </Grid>
