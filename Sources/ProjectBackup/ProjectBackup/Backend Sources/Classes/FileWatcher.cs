@@ -93,7 +93,9 @@ namespace ProjectBackup.Backend_Sources.Threads
                 watcherRunning = true;
 
                 // Start a new thread for the file to check
-                new Thread(() => FileDiffEvaluator.UpdateBackupLastTime(destination)).Start();
+                Thread t = new Thread(() => FileDiffEvaluator.UpdateBackupLastTime(destination));
+                t.IsBackground = true;
+                t.Start();
             }
             catch (Exception)
             {
