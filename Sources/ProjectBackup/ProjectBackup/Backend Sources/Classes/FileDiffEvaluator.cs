@@ -1,11 +1,6 @@
-﻿using ProjectBackup.Backend_Sources.Classes;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ProjectBackup.Backend_Sources.Threads
 {
@@ -14,6 +9,7 @@ namespace ProjectBackup.Backend_Sources.Threads
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(FileDiffEvaluator));
         private const int NumberOfTry = 10;
         private static bool copyRun = false;
+        public static string StatusFile = ".backup";
 
         /// <summary>
         /// Waits until a file can be opened with read permission to be able to backup
@@ -154,6 +150,35 @@ namespace ProjectBackup.Backend_Sources.Threads
 
                 // Start the copy of the file
                 NewOrChangedFile(e, source, destination);
+            }
+        }
+
+
+        /// <summary>
+        /// This method update a file that allow to check the backup status
+        /// </summary>
+        /// <param name="destination">Destination folder</param>
+        /// <param name="file">File to check</param>
+        public static void UpdateBackupLastTime(string destination)
+        {
+            // Loop until the end of the main proccess
+            while (true)
+            {
+                // If there was an update made in the folder
+                if (copyRun)
+                {
+                    // Create/Override the file in the destination folder. 
+                    var file = File.Create(Path.Combine(destination, StatusFile));
+
+                    // Close the file to be able to use it
+                    file.Close();
+
+                    // Set the status of the update to false
+                    copyRun = false;
+                }
+
+                // Sleep for some time
+                Thread.Sleep(10000);
             }
         }
     }

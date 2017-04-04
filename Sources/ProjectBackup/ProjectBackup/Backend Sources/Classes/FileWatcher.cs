@@ -1,14 +1,6 @@
-﻿using ProjectBackup.Backend_Sources.Classes;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Channels;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ProjectBackup.Backend_Sources.Threads
 {
@@ -56,10 +48,10 @@ namespace ProjectBackup.Backend_Sources.Threads
         public void InitStart()
         {
             // If the time file exist
-            if (File.Exists(Path.Combine(source, ".backup")))
+            if (File.Exists(Path.Combine(destination, FileDiffEvaluator.StatusFile)))
             {
                 // Get the time of the modification of the file
-                DateTime modification = File.GetLastWriteTime(Path.Combine(source, ".backup"));
+                DateTime modification = File.GetLastWriteTime(Path.Combine(source, FileDiffEvaluator.StatusFile));
 
                 // Get the file list of the directory
                 string[] files = Directory.GetFiles(source);
@@ -99,6 +91,9 @@ namespace ProjectBackup.Backend_Sources.Threads
                 Watcher.InternalBufferSize = 32768;
 
                 watcherRunning = true;
+
+                // Start a new thread for the file to check
+                new Thread(() => FileDiffEvaluator.UpdateBackupLastTime(destination)).Start();
             }
             catch (Exception)
             {
