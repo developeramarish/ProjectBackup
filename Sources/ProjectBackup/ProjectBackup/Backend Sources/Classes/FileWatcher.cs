@@ -32,10 +32,15 @@ namespace ProjectBackup.Backend_Sources.Threads
         /// </summary>
         public void InitNew()
         {
+            Logger.Info("Init first copy of a new backup ");
+
+            // Get the list of files in a directory
             string[] files = Directory.GetFiles(source);
 
+            // For each files in the directory
             foreach (var item in files)
             {
+                // Copy the file using a thread
                 FileSystemEventArgs e = new FileSystemEventArgs(WatcherChangeTypes.All, source, Path.GetFileName(item));
                 Thread t = new Thread(() => FileDiffEvaluator.NewOrChangedFile(e, source, destination));
                 t.Start();
@@ -47,6 +52,8 @@ namespace ProjectBackup.Backend_Sources.Threads
         /// </summary>
         public void InitStart()
         {
+            Logger.Info("Init the startup of a backup");
+
             // If the time file exist
             if (File.Exists(Path.Combine(destination, FileDiffEvaluator.StatusFile)))
             {
@@ -113,7 +120,7 @@ namespace ProjectBackup.Backend_Sources.Threads
         /// <param name="e"></param>
         private void NewOrChangedFile(object obj, FileSystemEventArgs e)
         {
-            Logger.Info("New file");
+            Logger.Info("New file triggered");
             
             // Start a new thread of the file to lower the wait time of the watcher
             Thread t = new Thread(() => FileDiffEvaluator.NewOrChangedFile(e, source, destination));
@@ -127,7 +134,7 @@ namespace ProjectBackup.Backend_Sources.Threads
         /// <param name="e"></param>
         private void DeletedFile(object obj, FileSystemEventArgs e)
         {
-            Logger.Info("Deleted file");
+            Logger.Info("Deleted file triggered");
 
             // Start a new thread of the file to lower the wait time of the watcher
             Thread t = new Thread(() => FileDiffEvaluator.DeletedFile(e, source, destination));
@@ -141,7 +148,7 @@ namespace ProjectBackup.Backend_Sources.Threads
         /// <param name="e"></param>
         private void RenamedFile(object obj, RenamedEventArgs e)
         {
-            Logger.Info("renamed file");
+            Logger.Info("Renamed file triggered");
 
             // Start a new thread of the file to lower the wait time of the watcher
             Thread t = new Thread(() => FileDiffEvaluator.RenamedFile(e, source, destination));

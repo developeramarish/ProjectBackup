@@ -139,6 +139,8 @@ namespace ProjectBackup
         /// <param name="filename">File name of the backup</param>
         private void SerializeCollection(string filename)
         {
+            _logger.Info("Save backup in the configuration file : " + filename);
+
             // Create the collection of backups
             Backups backups = new Backups();
 
@@ -170,6 +172,8 @@ namespace ProjectBackup
         /// <param name="filename">File name of the configuration</param>
         private void UnserializeCollection(string filename)
         {
+            _logger.Info("Load backup data from the save file : " + filename);
+
             try
             {
                 // Initiate a serializer
@@ -247,27 +251,31 @@ namespace ProjectBackup
         }
 
         /// <summary>
-        /// 
+        /// This method is triggered when the play button is pressed
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnPlayBackup_Click(object sender, RoutedEventArgs e)
         {
+            // If the watcher is not running
             if (!SelectedBackup.FileWatcher.watcherRunning)
             {
+                // Start the watcher
                 SelectedBackup.FileWatcher.Run();
             }
         }
 
         /// <summary>
-        /// 
+        /// This method is triggered when the pause button is pressed
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnPauseBackup_Click(object sender, RoutedEventArgs e)
         {
+            // If the watcher is running
             if (SelectedBackup.FileWatcher.watcherRunning)
             {
+                // Stop it and save it to the flag
                 SelectedBackup.FileWatcher.watcherRunning = false;
                 SelectedBackup.FileWatcher.Watcher.Dispose();
             }

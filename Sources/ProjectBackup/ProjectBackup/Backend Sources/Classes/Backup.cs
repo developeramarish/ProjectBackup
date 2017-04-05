@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ProjectBackup.Backend_Sources.Threads;
 
 namespace ProjectBackup.Backend_Sources.Classes

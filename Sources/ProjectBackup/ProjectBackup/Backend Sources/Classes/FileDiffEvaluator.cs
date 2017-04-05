@@ -23,6 +23,8 @@ namespace ProjectBackup.Backend_Sources.Threads
         /// </summary>
         public static void WaitReady(string fileName)
         {
+            Logger.Info("Wait until the file is ready to be copied : " + fileName);
+
             int counter = 0;
             while (counter < 100)
             {
@@ -41,11 +43,11 @@ namespace ProjectBackup.Backend_Sources.Threads
                 }
                 catch (IOException ex)
                 {
-                    Logger.Info(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
+                    Logger.Warn(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
                 }
                 catch (UnauthorizedAccessException ex)
                 {
-                    Logger.Info(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
+                    Logger.Warn(string.Format("Output file {0} not yet ready ({1})", fileName, ex.Message));
                 }
                 Thread.Sleep(100);
                 counter++;
@@ -74,7 +76,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             }
             catch (Exception excep)
             {
-                Logger.Info("Exception Nouveau/Edit fichier : " + excep.Message);
+                Logger.Warn("Exception Nouveau/Edit fichier : " + excep.Message);
             }
         }
 
@@ -99,7 +101,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             }
             catch (Exception excep)
             {
-                Logger.Info("Exception suppression fichier : " + excep.Message);
+                Logger.Warn("Exception suppression fichier : " + excep.Message);
             }
         }
 
@@ -126,7 +128,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             }
             catch (Exception excep)
             {
-                Logger.Info("Exception renommage du fichier : " + excep.Message);
+                Logger.Warn("Exception renommage du fichier : " + excep.Message);
             }            
         }
         
