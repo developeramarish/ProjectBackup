@@ -119,9 +119,6 @@ namespace ProjectBackup
                 // Init the backup to make a first copy of a folder
                 view.backup.FileWatcher.InitNew();
 
-                // We execute the watcher of the new backup
-                view.backup.FileWatcher.Run();
-
                 // We add the backup in the backup list
                 _mainProcess.backupList.Add(view.backup);
 
@@ -196,9 +193,6 @@ namespace ProjectBackup
 
                     // Init start to update the backup before the watcher start
                     b.FileWatcher.InitStart();
-
-                    // Launch the run function to initiaize the watcher
-                    b.FileWatcher.Run();
 
                     // Add the backup in the backup list of the window app
                     _mainProcess.backupList.Add(b);

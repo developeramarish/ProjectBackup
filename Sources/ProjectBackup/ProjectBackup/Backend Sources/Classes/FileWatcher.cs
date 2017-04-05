@@ -45,6 +45,9 @@ namespace ProjectBackup.Backend_Sources.Threads
                 Thread t = new Thread(() => FileDiffEvaluator.NewOrChangedFile(e, source, destination));
                 t.Start();
             }
+
+            // Call run when the init is done
+            Run();
         }
 
         /// <summary>
@@ -73,7 +76,8 @@ namespace ProjectBackup.Backend_Sources.Threads
 
             }
 
-            // Otherwise just do nothing
+            // Call run to start the watcher
+            Run();
         }
 
         /// <summary>
