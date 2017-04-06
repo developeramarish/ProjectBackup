@@ -99,7 +99,7 @@ namespace ProjectBackup.Backend_Sources.Threads
                 Watcher.Renamed += new RenamedEventHandler(RenamedFile);
                 Watcher.EnableRaisingEvents = true;
                 Watcher.IncludeSubdirectories = true;
-                Watcher.InternalBufferSize = 32768;
+                Watcher.InternalBufferSize = 2621440;
 
                 watcherRunning = true;
 
