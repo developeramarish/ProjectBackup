@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProjectBackup"
         mc:Ignorable="d"
-        Title="BackupModal" Height="201.015" Width="602.142" Background="#FF66676C" Foreground="Black" ScrollViewer.VerticalScrollBarVisibility="Disabled" ResizeMode="NoResize" ShowInTaskbar="False">
+        Title="BackupModal" Height="280.288" Width="839.605" Background="#FF66676C" Foreground="Black" ScrollViewer.VerticalScrollBarVisibility="Disabled" ResizeMode="NoResize" ShowInTaskbar="False">
     <Grid UseLayoutRounding="False">
-        <Label x:Name="lblNewBackup" Content="Nouvelle Sauvegarde" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="280" Foreground="White"/>
+        <Label x:Name="lblNewBackup" Content="Nouvelle Sauvegarde" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="280" Foreground="White" FontSize="14"/>
         <Label x:Name="lblName" Content="Nom :" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="85" Foreground="White"/>
         <Label x:Name="lblSource" Content="Source :" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top" Width="85" Foreground="White"/>
         <Label x:Name="lblDestination" Content="Destination :" HorizontalAlignment="Left" Margin="10,93,0,0" VerticalAlignment="Top" Width="85" Foreground="White"/>
@@ -17,14 +17,14 @@
                  TextWrapping="Wrap" 
                  VerticalAlignment="Top"
                  Text="{Binding name, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBox x:Name="txtBoxSource" HorizontalAlignment="Left" Height="23" Margin="95,70,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="410"
+        <TextBox x:Name="txtBoxSource" Height="23" Margin="95,70,162,0" TextWrapping="Wrap" VerticalAlignment="Top"
                  Text="{Binding source, UpdateSourceTrigger=PropertyChanged}"/>
-        <TextBox x:Name="txtBoxDestination" HorizontalAlignment="Left" Height="23" Margin="95,96,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="410"
+        <TextBox x:Name="txtBoxDestination" Height="23" Margin="95,96,162,0" TextWrapping="Wrap" VerticalAlignment="Top"
                  Text="{Binding destination, UpdateSourceTrigger=PropertyChanged}"/>
-        <Button x:Name="btnAjouter" Content="Ajouter" Margin="510,131,11,0" VerticalAlignment="Top" Click="btnAjouter_Click"/>
-        <Button x:Name="btnCancel" Content="Annuler" Margin="430,131,91,0" VerticalAlignment="Top" Click="btnCancel_Click"/>
-        <Button x:Name="btnGetDirectoryModalSource" Content="Choisir" Margin="510,72,10,0" VerticalAlignment="Top" Click="btnGetDirectoryModalSource_Click"/>
-        <Button x:Name="btnGetDirectoryModalDestination" Content="Choisir" Margin="510,97,10,0" VerticalAlignment="Top" Click="btnGetDirectoryModalDestination_Click"/>
+        <Button x:Name="btnAjouter" Content="Ajouter" Margin="0,131,11,0" VerticalAlignment="Top" Click="btnAjouter_Click" Height="30" HorizontalAlignment="Right" Width="130"/>
+        <Button x:Name="btnCancel" Content="Annuler" Margin="0,131,162,0" VerticalAlignment="Top" Click="btnCancel_Click" Height="30" Width="130" HorizontalAlignment="Right"/>
+        <Button x:Name="btnGetDirectoryModalSource" Content="Choisir" Margin="0,72,10,0" VerticalAlignment="Top" Click="btnGetDirectoryModalSource_Click" HorizontalAlignment="Right" Width="131"/>
+        <Button x:Name="btnGetDirectoryModalDestination" Content="Choisir" Margin="0,97,10,0" VerticalAlignment="Top" Click="btnGetDirectoryModalDestination_Click" HorizontalAlignment="Right" Width="131"/>
 
     </Grid>
 </Window>

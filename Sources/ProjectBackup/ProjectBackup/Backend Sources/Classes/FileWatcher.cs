@@ -61,7 +61,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             if (File.Exists(Path.Combine(destination, FileDiffEvaluator.StatusFile)))
             {
                 // Get the time of the modification of the file
-                DateTime modification = File.GetLastWriteTime(Path.Combine(source, FileDiffEvaluator.StatusFile));
+                DateTime modification = File.GetLastWriteTime(Path.Combine(destination, FileDiffEvaluator.StatusFile));
 
                 // Get the file list of the directory
                 string[] files = Directory.GetFiles(source);
@@ -74,6 +74,22 @@ namespace ProjectBackup.Backend_Sources.Threads
                     t.Start();
                 }
 
+                // Get all the files in the destination folder
+                files = Directory.GetFiles(destination);
+
+                // For each of thoses files
+                foreach (var item in files)
+                {
+                    // If the file doesn't exist in the source, it means that it have been deleted
+                    if (item != null && !File.Exists(Path.Combine(source, Path.GetFileName(item))))
+                    {
+                        // Create a FileSystemEvent for the deleted file
+                        FileSystemEventArgs e = new FileSystemEventArgs(WatcherChangeTypes.All, source, Path.GetFileName(item));
+
+                        // Launch the delete function to delete the file
+                        DeletedFile(new object(), e);
+                    }
+                }
             }
 
             // Call run to start the watcher
@@ -98,7 +114,7 @@ namespace ProjectBackup.Backend_Sources.Threads
                 Watcher.Deleted += new FileSystemEventHandler(DeletedFile);
                 Watcher.Renamed += new RenamedEventHandler(RenamedFile);
                 Watcher.EnableRaisingEvents = true;
-                Watcher.IncludeSubdirectories = true;
+                Watcher.IncludeSubdirectories = false;
                 Watcher.InternalBufferSize = 2621440;
 
                 watcherRunning = true;

@@ -26,7 +26,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             Logger.Info("Wait until the file is ready to be copied : " + fileName);
 
             int counter = 0;
-            while (counter < 100)
+            while (counter < NumberOfTry)
             {
                 Logger.Info("File check : " + fileName);
                 try
@@ -76,7 +76,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             }
             catch (Exception excep)
             {
-                Logger.Warn("Exception Nouveau/Edit fichier : " + excep.Message);
+                Logger.Error("Exception Nouveau/Edit fichier : " + excep.Message);
             }
         }
 
@@ -101,7 +101,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             }
             catch (Exception excep)
             {
-                Logger.Warn("Exception suppression fichier : " + excep.Message);
+                Logger.Error("Exception suppression fichier : " + excep.Message);
             }
         }
 
@@ -128,7 +128,7 @@ namespace ProjectBackup.Backend_Sources.Threads
             }
             catch (Exception excep)
             {
-                Logger.Warn("Exception renommage du fichier : " + excep.Message);
+                Logger.Error("Exception renommage du fichier : " + excep.Message);
             }            
         }
         

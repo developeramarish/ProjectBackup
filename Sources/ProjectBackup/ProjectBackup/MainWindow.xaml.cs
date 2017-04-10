@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using ProjectBackup.Backend_Sources.Classes;
 using ProjectBackup.Backend_Sources.Threads;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Xml.Serialization;
 
 namespace ProjectBackup
@@ -34,7 +35,7 @@ namespace ProjectBackup
         public Backup SelectedBackup
         {
             get { return _selectedBackup; }
-            set { _selectedBackup = value; triggerSelectedBackup(); }
+            set { _selectedBackup = value; }
         }
 
         /// <summary>
@@ -117,7 +118,9 @@ namespace ProjectBackup
                 view.backup.FileWatcher = new FileWatcher(view.backup.Source, view.backup.Destination);
 
                 // Init the backup to make a first copy of a folder
-                view.backup.FileWatcher.InitNew();
+                // Start it in a thread to limit the blocking on the main program
+                Thread t = new Thread(() => view.backup.FileWatcher.InitNew());
+                t.Start();
 
                 // We add the backup in the backup list
                 _mainProcess.backupList.Add(view.backup);
@@ -190,9 +193,11 @@ namespace ProjectBackup
 
                     // Initiate a new FileWatcher with the source path and destination path
                     b.FileWatcher = new FileWatcher(b.Source, b.Destination);
-
+                    
                     // Init start to update the backup before the watcher start
-                    b.FileWatcher.InitStart();
+                    // start on a new thread to let an other backup make de verification
+                    Thread t = new Thread(() => b.FileWatcher.InitStart());
+                    t.Start();
 
                     // Add the backup in the backup list of the window app
                     _mainProcess.backupList.Add(b);
@@ -205,11 +210,6 @@ namespace ProjectBackup
             {
                 _logger.Warn("The configuration file could not be loaded. Might be missing or invalid");
             }
-        }
-
-        private void triggerSelectedBackup()
-        {
-            Console.WriteLine(_selectedBackup.Name);
         }
 
         /// <summary>
@@ -228,19 +228,8 @@ namespace ProjectBackup
                 // Cast the backup to be able to use it
                 Backup backup = (Backup)(dataGrid.SelectedItem);
 
-                // In case the backup selected is not deleted
-                if (backup != null)
-                {
-                    // Set the enabled value of the buttons
-                    btnPauseBackup.IsEnabled = backup.FileWatcher.watcherRunning;
-                    btnPlayBackup.IsEnabled = !backup.FileWatcher.watcherRunning;
-                }
-                else
-                {
-                    // If it's deleted just disable the buttons
-                    btnPauseBackup.IsEnabled = false;
-                    btnPlayBackup.IsEnabled = false;
-                }
+                // Update the buttons of the main window
+                UpdateWatcherButtons(backup);
             }
         }
 
@@ -252,10 +241,14 @@ namespace ProjectBackup
         private void btnPlayBackup_Click(object sender, RoutedEventArgs e)
         {
             // If the watcher is not running
-            if (!SelectedBackup.FileWatcher.watcherRunning)
+            if (SelectedBackup != null && !SelectedBackup.FileWatcher.watcherRunning)
             {
-                // Start the watcher
-                SelectedBackup.FileWatcher.Run();
+                // Start the watcher with the verification of change made while it was paused
+                Thread t = new Thread(() => SelectedBackup.FileWatcher.InitStart());
+                t.Start();
+
+                // Update the buttons in the main window
+                UpdateWatcherButtons(SelectedBackup);
             }
         }
 
@@ -267,11 +260,41 @@ namespace ProjectBackup
         private void btnPauseBackup_Click(object sender, RoutedEventArgs e)
         {
             // If the watcher is running
-            if (SelectedBackup.FileWatcher.watcherRunning)
+            if (SelectedBackup != null && SelectedBackup.FileWatcher.watcherRunning)
             {
                 // Stop it and save it to the flag
                 SelectedBackup.FileWatcher.watcherRunning = false;
                 SelectedBackup.FileWatcher.Watcher.Dispose();
+
+                // Update the buttons in the main window
+                UpdateWatcherButtons(SelectedBackup);
+            }
+        }
+
+        /// <summary>
+        /// This method update the play and pause button in the main windows
+        /// </summary>
+        /// <param name="backup">Selected Backup</param>
+        private void UpdateWatcherButtons(Backup backup)
+        {
+            // In case the backup selected is not deleted
+            if (backup != null)
+            {
+                // Set the current backup
+                SelectedBackup = backup;
+
+                // Set the enabled value of the buttons
+                btnPauseBackup.IsEnabled = backup.FileWatcher.watcherRunning;
+                btnPlayBackup.IsEnabled = !backup.FileWatcher.watcherRunning;
+            }
+            else
+            {
+                // Set the current backup
+                SelectedBackup = null;
+
+                // If it's deleted just disable the buttons
+                btnPauseBackup.IsEnabled = false;
+                btnPlayBackup.IsEnabled = false;
             }
         }
     }

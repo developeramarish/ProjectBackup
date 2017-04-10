@@ -8,10 +8,10 @@
         Title="ProjectBackup" Height="612" Width="952"
         WindowStartupLocation="CenterScreen" Background="#FF66676C" Foreground="Black">
     <Grid>
-        <Label Content="Liste des sauvegardes:" Margin="10,53,0,0" HorizontalAlignment="Left" Width="172" Height="26" VerticalAlignment="Top" Foreground="White"/>
-        <Button x:Name="btnAddBackup" Content="Ajouter" Margin="0,59,10,0" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="95" Foreground="Black" Background="#FFC3C3C3" Click="btnAddBackup_Click"/>
-        <Label Content="ProjectBackup" Margin="10,17,0,0" HorizontalAlignment="Left" Width="226" Height="26" VerticalAlignment="Top" Foreground="White"/>
-        <DataGrid Grid.Column="1" Grid.Row="3" Margin="10,84,10,10"
+        <Label Content="Liste des sauvegardes:" Margin="10,67,0,0" HorizontalAlignment="Left" Width="172" Height="33" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
+        <Button x:Name="btnAddBackup" Content="Ajouter" Margin="0,57,10,0" Height="38" VerticalAlignment="Top" HorizontalAlignment="Right" Width="140" Foreground="Black" Background="#FFC3C3C3" Click="btnAddBackup_Click" FontSize="18"/>
+        <Label Content="ProjectBackup - Vincent Desrosiers" Margin="10,0,0,0" HorizontalAlignment="Left" Width="368" Height="54" VerticalAlignment="Top" Foreground="White" FontSize="18"/>
+        <DataGrid Margin="10,105,10,10"
                   ItemsSource="{Binding Backup, UpdateSourceTrigger=PropertyChanged}"
                   SelectedItem="{Binding SelectedBackup}"
                   CanUserDeleteRows="False"
@@ -35,16 +35,18 @@
             </DataGrid.Columns>
 
         </DataGrid>
-        <Button x:Name="btnPlayBackup" HorizontalAlignment="Left" Margin="171,59,0,0" VerticalAlignment="Top" Width="25" Height="20" IsEnabled="False" Click="btnPlayBackup_Click">
+        <Button x:Name="btnPlayBackup" HorizontalAlignment="Left" Margin="195,59,0,0" VerticalAlignment="Top" Width="52" Height="41" IsEnabled="True" Click="btnPlayBackup_Click">
             <StackPanel >
                 <Image Source="img/play.png" Height="16" Width="20" />
             </StackPanel>
         </Button>
-        <Button x:Name="btnPauseBackup" HorizontalAlignment="Left" Margin="201,59,0,0" VerticalAlignment="Top" Width="25" Height="20" IsEnabled="False" Click="btnPauseBackup_Click">
+        <Button x:Name="btnPauseBackup" HorizontalAlignment="Left" Margin="360,59,0,0" VerticalAlignment="Top" Width="52" Height="41" IsEnabled="True" Click="btnPauseBackup_Click">
             <StackPanel>
                 <Image Source="img/pause.png" Height="16" Width="20" />
             </StackPanel>
         </Button>
+        <Label Content="Démarrer la&#xD;&#xA;sauvegarde" HorizontalAlignment="Left" Margin="252,59,0,0" VerticalAlignment="Top" Foreground="White" FontSize="13"/>
+        <Label Content="Arrêter la&#xA;sauvegarde" HorizontalAlignment="Left" Margin="417,59,0,0" VerticalAlignment="Top" Foreground="White" FontSize="13"/>
 
 
     </Grid>

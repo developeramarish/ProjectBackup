@@ -18,7 +18,9 @@ namespace ProjectBackup
         public BackupModal()
         {
             InitializeComponent();
-            
+
+            // Open the modal in the middle of the screen to be able to see it
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
         }
 
         /// <summary>
